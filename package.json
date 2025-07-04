@@ -1,12 +1,12 @@
 {
-  "name": "mlb-scores",
+  "name": "sports-scores-site",
   "version": "1.0.0",
-  "main": "scripts/fetch_scores.js",
+  "description": "Fetch MLB, NBA, Soccer scores and update GitHub Pages",
+  "main": "index.js",
   "scripts": {
-    "start": "node scripts/fetch_scores.js"
+    "fetch": "node scripts/fetch_mlb_scores.js && node scripts/fetch_nba_scores.js && node scripts/fetch_soccer_scores.js"
   },
   "dependencies": {
-    "axios": "^1.4.0",
-    "cheerio": "^1.0.0-rc.12"
+    "node-fetch": "^2.6.1"
   }
 }
