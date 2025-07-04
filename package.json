@@ -1,0 +1,12 @@
+{
+  "name": "mlb-scores",
+  "version": "1.0.0",
+  "main": "scripts/fetch_scores.js",
+  "scripts": {
+    "start": "node scripts/fetch_scores.js"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "cheerio": "^1.0.0-rc.12"
+  }
+}
