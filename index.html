@@ -1,39 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <title>Sports Scores</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { color: #333; }
-    pre { background: #f0f0f0; padding: 15px; border-radius: 5px; }
-  </style>
+<meta charset="UTF-8" />
+<title>即時運動比分</title>
+<style>
+  body {
+    font-family: "Microsoft JhengHei", sans-serif;
+    background: #f0f2f5;
+    max-width: 720px;
+    margin: 30px auto;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #2c3e50;
+  }
+  section {
+    margin-bottom: 40px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgb(0 0 0 / 0.1);
+    padding: 20px;
+  }
+  h2 {
+    margin-bottom: 20px;
+    color: #34495e;
+    border-bottom: 2px solid #2980b9;
+    padding-bottom: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+  th {
+    background-color: #2980b9;
+    color: white;
+  }
+  tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  tbody tr:hover {
+    background-color: #d6eaf8;
+  }
+  .team-home {
+    font-weight: 600;
+    color: #27ae60;
+  }
+  .team-away {
+    font-weight: 600;
+    color: #c0392b;
+  }
+  .score {
+    font-weight: 700;
+    font-size: 1.1em;
+  }
+  .status {
+    font-style: italic;
+    color: #7f8c8d;
+  }
+</style>
 </head>
 <body>
-  <h1>MLB Scores</h1>
-  <pre id="mlb">Loading MLB scores...</pre>
+<h1>即時 MLB / NBA / 足球 比分</h1>
 
-  <h1>NBA Scores</h1>
-  <pre id="nba">Loading NBA scores...</pre>
+<section id="mlb-section">
+  <h2>MLB 棒球</h2>
+  <table id="mlb-table">
+    <thead>
+      <tr><th>主隊</th><th>比分</th><th>客隊</th><th>賽事狀態</th></tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="4">載入中...</td></tr>
+    </tbody>
+  </table>
+</section>
 
-  <h1>Soccer Scores</h1>
-  <pre id="soccer">Loading Soccer scores...</pre>
+<section id="nba-section">
+  <h2>NBA 籃球</h2>
+  <table id="nba-table">
+    <thead>
+      <tr><th>主隊</th><th>比分</th><th>客隊</th><th>賽事狀態</th></tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="4">載入中...</td></tr>
+    </tbody>
+  </table>
+</section>
 
-  <script>
-    async function loadScores(filename, elementId) {
-      try {
-        const response = await fetch(filename);
-        if (!response.ok) throw new Error('Failed to fetch ' + filename);
-        const text = await response.text();
-        document.getElementById(elementId).innerText = text || 'No games found.';
-      } catch (e) {
-        document.getElementById(elementId).innerText = 'Error loading scores.';
+<section id="soccer-section">
+  <h2>足球</h2>
+  <table id="soccer-table">
+    <thead>
+      <tr><th>主隊</th><th>比分</th><th>客隊</th><th>賽事狀態</th></tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="4">載入中...</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<script>
+  async function loadScores() {
+    try {
+      const res = await fetch('score.txt');
+      if (!res.ok) throw new Error('無法讀取比分資料');
+      const text = await res.text();
+
+      // 範例格式示意（你可以根據實際score.txt內容調整解析方式）：
+      // ---MLB---
+      // 主隊A 5 - 3 客隊B 進行中
+      // ---
+      // ---NBA---
+      // 主隊C 110 - 105 客隊D 結束
+      // ---
+      // ---Soccer---
+      // 主隊E 2 - 1 客隊F 45'上半場
+
+      // 將文字分割成三個區塊
+      const mlbSection = text.match(/---MLB---([\s\S]*?)---/);
+      const nbaSection = text.match(/---NBA---([\s\S]*?)---/);
+      const soccerSection = text.match(/---Soccer---([\s\S]*)$/);
+
+      function parseGames(sectionText) {
+        if (!sectionText) return [];
+        return sectionText.trim().split('\n').filter(line => line.trim()).map(line => {
+          // 範例: 主隊A 5 - 3 客隊B 進行中
+          const m = line.match(/(.+?)\s+(\d+)\s*-\s*(\d+)\s+(.+?)\s+(.+)/);
+          if (!m) return null;
+          return {
+            home: m[1].trim(),
+            homeScore: m[2],
+            awayScore: m[3],
+            away: m[4].trim(),
+            status: m[5].trim()
+          };
+        }).filter(Boolean);
       }
-    }
 
-    loadScores('mlb_scores.txt', 'mlb');
-    loadScores('nba_scores.txt', 'nba');
-    loadScores('soccer_scores.txt', 'soccer');
-  </script>
+      function renderTable(id, games) {
+        const tbody = document.querySelector(`#${id} tbody`);
+        if (games.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4">無比賽資料</td></tr>';
+          return;
+        }
+        tbody.innerHTML = games.map(g => `
+          <tr>
+            <td class="team-home">${g.home}</td>
+            <td class="score">${g.homeScore} - ${g.awayScore}</td>
+            <td class="team-away">${g.away}</td>
+            <td class="status">${g.status}</td>
+          </tr>
+        `).join('');
+      }
+
+      renderTable('mlb-table', parseGames(mlbSection?.[1]));
+      renderTable('nba-table', parseGames(nbaSection?.[1]));
+      renderTable('soccer-table', parseGames(soccerSection?.[1]));
+
+    } catch (e) {
+      console.error(e);
+      ['mlb-table', 'nba-table', 'soccer-table'].forEach(id => {
+        document.querySelector(`#${id} tbody`).innerHTML = `<tr><td colspan="4">讀取錯誤：${e.message}</td></tr>`;
+      });
+    }
+  }
+
+  loadScores();
+  setInterval(loadScores, 60000); // 每分鐘更新一次比分
+</script>
+
 </body>
 </html>
