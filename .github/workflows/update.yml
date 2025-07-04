@@ -1,36 +1,35 @@
-name: Daily Sports Update
+name: Update MLB Scores
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # 每天 UTC 01:00 執行（台灣時間 09:00）
-  workflow_dispatch:      # 可手動觸發
+    - cron: '0 * * * *'   # 每小時整點執行一次
+  workflow_dispatch:     # 可手動觸發
 
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
+    - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Setup Node.js
+    - name: Setup Node.js environment
       uses: actions/setup-node@v3
       with:
         node-version: '20'
 
-    - name: Run update script
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run fetch_scores.js to update scores
       run: node scripts/fetch_scores.js
 
-    - name: Commit and push changes
+    - name: Commit and push updated files
       run: |
         git config user.name "github-actions"
-        git config user.email "actions@github.com"
-        git fetch origin main
-        git checkout -B main origin/main
-        git add index.html
-        if git diff --cached --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "更新比分 $(date +'%Y-%m-%d')"
-          git push origin main --force
-        fi
+        git config user.email "github-actions@github.com"
+        git add .
+        git commit -m "Auto update MLB scores"
+        git push
+      # 如果沒變更檔案，commit 會失敗，這裡可以加個忽略失敗，避免 workflow 中斷
+      continue-on-error: true
