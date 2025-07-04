@@ -114,17 +114,6 @@
       if (!res.ok) throw new Error('無法讀取比分資料');
       const text = await res.text();
 
-      // 範例格式示意（你可以根據實際score.txt內容調整解析方式）：
-      // ---MLB---
-      // 主隊A 5 - 3 客隊B 進行中
-      // ---
-      // ---NBA---
-      // 主隊C 110 - 105 客隊D 結束
-      // ---
-      // ---Soccer---
-      // 主隊E 2 - 1 客隊F 45'上半場
-
-      // 將文字分割成三個區塊
       const mlbSection = text.match(/---MLB---([\s\S]*?)---/);
       const nbaSection = text.match(/---NBA---([\s\S]*?)---/);
       const soccerSection = text.match(/---Soccer---([\s\S]*)$/);
@@ -132,7 +121,6 @@
       function parseGames(sectionText) {
         if (!sectionText) return [];
         return sectionText.trim().split('\n').filter(line => line.trim()).map(line => {
-          // 範例: 主隊A 5 - 3 客隊B 進行中
           const m = line.match(/(.+?)\s+(\d+)\s*-\s*(\d+)\s+(.+?)\s+(.+)/);
           if (!m) return null;
           return {
@@ -146,36 +134,4 @@
       }
 
       function renderTable(id, games) {
-        const tbody = document.querySelector(`#${id} tbody`);
-        if (games.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4">無比賽資料</td></tr>';
-          return;
-        }
-        tbody.innerHTML = games.map(g => `
-          <tr>
-            <td class="team-home">${g.home}</td>
-            <td class="score">${g.homeScore} - ${g.awayScore}</td>
-            <td class="team-away">${g.away}</td>
-            <td class="status">${g.status}</td>
-          </tr>
-        `).join('');
-      }
-
-      renderTable('mlb-table', parseGames(mlbSection?.[1]));
-      renderTable('nba-table', parseGames(nbaSection?.[1]));
-      renderTable('soccer-table', parseGames(soccerSection?.[1]));
-
-    } catch (e) {
-      console.error(e);
-      ['mlb-table', 'nba-table', 'soccer-table'].forEach(id => {
-        document.querySelector(`#${id} tbody`).innerHTML = `<tr><td colspan="4">讀取錯誤：${e.message}</td></tr>`;
-      });
-    }
-  }
-
-  loadScores();
-  setInterval(loadScores, 60000); // 每分鐘更新一次比分
-</script>
-
-</body>
-</html>
+        const tbody
