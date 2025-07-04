@@ -1,53 +1,39 @@
-const fetch = require('node-fetch');
 const fs = require('fs');
-const path = require('path');
+const fetch = require('node-fetch');
 
-// 動態取得當天日期 (YYYY-MM-DD)
-const today = new Date().toISOString().slice(0, 10);
+(async () => {
+  const date = new Date().toISOString().slice(0, 10);
+  const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}`;
+  console.log(`取得比賽資料：${url}`);
 
-// MLB API，sportId=1 表示 MLB
-const API_URL = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}`;
-
-async function fetchScores() {
   try {
-    const res = await fetch(API_URL);
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
+    const res = await fetch(url);
     const data = await res.json();
 
-    // 取得當天所有賽事
-    const dates = data.dates;
-    if (!dates || dates.length === 0) {
-      console.log('今日無賽事');
-      fs.writeFileSync(path.join(__dirname, '..', 'public', 'score.txt'), '今日無賽事');
+    if (!data.dates || data.dates.length === 0) {
+      console.log('✅ API 無比賽資料');
+      fs.writeFileSync('public/score.txt', '今日無比賽');
       return;
     }
 
-    const games = dates[0].games;
-    if (!games || games.length === 0) {
-      console.log('今日無賽事');
-      fs.writeFileSync(path.join(__dirname, '..', 'public', 'score.txt'), '今日無賽事');
-      return;
-    }
+    const games = data.dates[0].games;
+    console.log(`📊 今日共有 ${games.length} 場比賽`);
 
-    // 準備寫入的文字資料
-    const lines = games.map(game => {
-      const home = game.teams.home.team.name;
+    let output = '';
+    for (const game of games) {
       const away = game.teams.away.team.name;
-      const homeScore = game.teams.home.score;
-      const awayScore = game.teams.away.score;
-      const status = game.status.detailedState; // 比賽狀態（例如：Final、In Progress）
+      const awayScore = game.teams.away.score ?? '-';
+      const home = game.teams.home.team.name;
+      const homeScore = game.teams.home.score ?? '-';
+      const status = game.status.detailedState;
 
-      return `${away} ${awayScore} @ ${home} ${homeScore} - ${status}`;
-    });
+      output += `${away} ${awayScore} @ ${home} ${homeScore} - ${status}\n`;
+    }
 
-    // 寫入 public/score.txt
-    fs.writeFileSync(path.join(__dirname, '..', 'public', 'score.txt'), lines.join('\n'));
-    console.log('比分資料已更新');
-  } catch (error) {
-    console.error('抓取比分失敗:', error);
-    fs.writeFileSync(path.join(__dirname, '..', 'public', 'score.txt'), '抓取比分失敗');
+    fs.writeFileSync('public/score.txt', output.trim());
+    console.log('✅ score.txt 寫入成功！');
+  } catch (err) {
+    console.error('❌ 發生錯誤：', err);
+    fs.writeFileSync('public/score.txt', '⚠️ 比賽資料讀取失敗');
   }
-}
-
-fetchScores();
+})();
