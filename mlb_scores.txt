@@ -1,10 +1,15 @@
-Miami Marlins 4 - 1 Minnesota Twins
-Colorado Rockies 7 - 6 Houston Astros
-Washington Nationals 11 - 7 Detroit Tigers
-Toronto Blue Jays 8 - 5 New York Yankees
-New York Mets 3 - 2 Milwaukee Brewers
-Atlanta Braves 1 - 5 Los Angeles Angels
-Chicago Cubs 1 - 0 Cleveland Guardians
-Arizona Diamondbacks 2 - 7 San Francisco Giants
-Los Angeles Dodgers 6 - 2 Chicago White Sox
-Seattle Mariners 2 - 3 Kansas City Royals
+Washington Nationals 2 - 11 Boston Red Sox
+Philadelphia Phillies 6 - 9 Cincinnati Reds
+Chicago Cubs 11 - 3 St. Louis Cardinals
+New York Mets 6 - 5 New York Yankees
+Minnesota Twins 4 - 3 Tampa Bay Rays
+Seattle Mariners 6 - 0 Pittsburgh Pirates
+San Diego Padres 2 - 2 Texas Rangers
+Toronto Blue Jays 3 - 0 Los Angeles Angels
+Cleveland Guardians 1 - 2 Detroit Tigers
+Miami Marlins 5 - 5 Milwaukee Brewers
+Atlanta Braves 2 - 3 Baltimore Orioles
+Colorado Rockies 0 - 0 Chicago White Sox
+Los Angeles Dodgers 0 - 0 Houston Astros
+Arizona Diamondbacks 0 - 0 Kansas City Royals
+Athletics 0 - 0 San Francisco Giants
